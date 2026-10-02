@@ -1,0 +1,87 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: #0a0a0a;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+}
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  background: #111;
+  border-bottom: 1px solid #ff6600;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.logo { color: #ff6600; font-weight: bold; font-size: 18px; }
+
+.search { display: flex; gap: 8px; }
+
+.search input {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #e0e0e0;
+  padding: 6px 12px;
+  font-family: inherit;
+  width: 200px;
+}
+
+.search button {
+  background: #ff6600;
+  border: none;
+  color: #000;
+  padding: 6px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid #222;
+  overflow-y: auto;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  white-space: nowrap;
+  animation: marquee 40s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
