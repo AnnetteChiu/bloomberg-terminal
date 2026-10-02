@@ -4,7 +4,7 @@ import requests, time
 from datetime import date, timedelta, datetime
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "https://*.vercel.app"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "https://*.vercel.app", "https://bloomberg-terminal-1-622z.onrender.com"], allow_methods=["*"], allow_headers=["*"])
 
 FINNHUB_KEY = "dahso4hr01qvl9br4mq0dahso4hr01qvl9br4mqg"
 FINNHUB = "https://finnhub.io/api/v1"
