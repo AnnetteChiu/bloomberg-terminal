@@ -1,6 +1,6 @@
-import { API_URL } from '../api'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { API_URL } from '../api'
 
 export default function AlgoTrader() {
   const [account, setAccount] = useState(null)
@@ -13,8 +13,8 @@ export default function AlgoTrader() {
     const fetch = async () => {
       try {
         const [acc, log] = await Promise.all([
-          axios.get(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/algo/account'),
-          axios.get(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/algo/logs'),
+          axios.get(`${API_URL}/algo/account`),
+          axios.get(`${API_URL}/algo/logs`),
         ])
         setAccount(acc.data)
         setLogs(log.data.logs)
@@ -32,7 +32,7 @@ export default function AlgoTrader() {
   }
 
   const stop = async () => {
-    await axios.post(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/algo/stop')
+    await axios.post(`${API_URL}/algo/stop`)
     setRunning(false)
   }
 
