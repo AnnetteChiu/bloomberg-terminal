@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createChart, CandlestickSeries, LineSeries } from 'lightweight-charts'
 import axios from 'axios'
 
-export default function Chart({ symbols = ['AAPL'] }) {
+export default function Chart({ symbols = ['AAPL'], market = 'us' }) {
   const candleRef = useRef()
   const rsiRef = useRef()
   const chartRef = useRef()
@@ -52,6 +52,7 @@ export default function Chart({ symbols = ['AAPL'] }) {
     seriesMap.current = {}
 
     const colors = ['#ff6600', '#00aaff', '#ff00ff', '#ffff00']
+    const base = market === 'tw' ? `${API_URL}/tw/stocks` : `${API_URL}/stocks`
 
     symbols.forEach((symbol, idx) => {
       const color = colors[idx % colors.length]
@@ -65,7 +66,7 @@ export default function Chart({ symbols = ['AAPL'] }) {
         })
         seriesMap.current[`candle_${symbol}`] = candle
 
-        axios.get(`${API_URL}/stocks/${symbol}/history?period=${period}`)
+        axios.get(`${base}/${symbol}/history?period=${period}`)
           .then(r => candle.setData(r.data.map(d => ({
             time: d.time, open: d.open, high: d.high, low: d.low, close: d.close
           }))))
@@ -78,7 +79,7 @@ export default function Chart({ symbols = ['AAPL'] }) {
           seriesMap.current['ma20'] = ma20
           seriesMap.current['rsi'] = rsiLine
 
-          axios.get(`${API_URL}/stocks/${symbol}/indicators?period=${period}`)
+          axios.get(`${base}/${symbol}/indicators?period=${period}`)
             .then(r => {
               ma5.setData(r.data.filter(d => d.ma5).map(d => ({ time: d.time, value: d.ma5 })))
               ma20.setData(r.data.filter(d => d.ma20).map(d => ({ time: d.time, value: d.ma20 })))
@@ -89,11 +90,11 @@ export default function Chart({ symbols = ['AAPL'] }) {
         // 對比股票用折線
         const line = chartRef.current.addSeries(LineSeries, { color, lineWidth: 2, priceLineVisible: false })
         seriesMap.current[`line_${symbol}`] = line
-        axios.get(`${API_URL}/stocks/${symbol}/history?period=${period}`)
+        axios.get(`${base}/${symbol}/history?period=${period}`)
           .then(r => line.setData(r.data.map(d => ({ time: d.time, value: d.close }))))
       }
     })
-  }, [symbols, period, showMA])
+  }, [symbols, period, showMA, market])
 
   return (
     <div style={{ background: '#111', display: 'flex', flexDirection: 'column' }}>

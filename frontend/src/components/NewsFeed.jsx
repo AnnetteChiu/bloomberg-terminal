@@ -2,14 +2,15 @@ import { API_URL } from '../api'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 
-export default function NewsFeed({ symbol }) {
+export default function NewsFeed({ symbol, market = 'us' }) {
   const [news, setNews] = useState([])
 
   useEffect(() => {
-    axios.get(`${API_URL}/news/${symbol}`)
+    const base = market === 'tw' ? `${API_URL}/tw/news` : `${API_URL}/news`
+    axios.get(`${base}/${symbol}`)
       .then(r => setNews(r.data))
       .catch(() => setNews([]))
-  }, [symbol])
+  }, [symbol, market])
 
   return (
     <div style={{ background: '#111', borderTop: '1px solid #222', padding: 16,

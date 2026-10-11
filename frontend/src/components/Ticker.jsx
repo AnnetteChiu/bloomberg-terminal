@@ -5,7 +5,7 @@ import axios from 'axios'
 const SIGNAL_COLOR = { BUY: '#00ff88', SELL: '#ff4444', HOLD: '#ffaa00', WAIT: '#555', ERROR: '#555' }
 const SIGNAL_BG = { BUY: '#002211', SELL: '#220011', HOLD: '#221100', WAIT: '#111', ERROR: '#111' }
 
-export default function Ticker({ symbol }) {
+export default function Ticker({ symbol, market = 'us' }) {
   const [data, setData] = useState(null)
   const [signal, setSignal] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -13,14 +13,17 @@ export default function Ticker({ symbol }) {
   useEffect(() => {
     setLoading(true)
     setSignal(null)
+    const base = market === 'tw' ? `${API_URL}/tw/stocks` : `${API_URL}/stocks`
     Promise.all([
-      axios.get(`${API_URL}/stocks/${symbol}`),
-      axios.get(`${API_URL}/stocks/${symbol}/signal`),
+      axios.get(`${base}/${symbol}`),
+      axios.get(`${base}/${symbol}/signal`),
     ])
       .then(([q, s]) => { setData(q.data); setSignal(s.data) })
       .catch(() => setData(null))
       .finally(() => setLoading(false))
-  }, [symbol])
+  }, [symbol, market])
+
+  const currency = market === 'tw' ? 'NT$' : '$'
 
   return (
     <div style={{ background: '#111', padding: 20, borderRight: '1px solid #222' }}>
@@ -30,8 +33,8 @@ export default function Ticker({ symbol }) {
         <div style={{ color: '#ff4444' }}>找不到 {symbol}</div>
       ) : (
         <>
-          <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff6600' }}>{data.symbol}</div>
-          <div style={{ fontSize: 36, fontWeight: 'bold', marginTop: 8 }}>${data.price?.toFixed(2)}</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff6600' }}>{data.symbol?.replace('.TW','')}</div>
+          <div style={{ fontSize: 36, fontWeight: 'bold', marginTop: 8 }}>{currency}{data.price?.toFixed(2)}</div>
           <div style={{ color: data.change >= 0 ? '#00ff88' : '#ff4444', fontSize: 18, marginTop: 4 }}>
             {data.change >= 0 ? '▲' : '▼'} {Math.abs(data.change)?.toFixed(2)} ({data.change_pct?.toFixed(2)}%)
           </div>

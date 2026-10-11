@@ -2,7 +2,7 @@ import { API_URL } from '../api'
 import { useState } from 'react'
 import axios from 'axios'
 
-export default function HotStocks({ onSelect }) {
+export default function HotStocks({ onSelect, market = 'us' }) {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [scanned, setScanned] = useState(false)
@@ -10,7 +10,8 @@ export default function HotStocks({ onSelect }) {
   const scan = async () => {
     setLoading(true)
     try {
-      const r = await axios.get('${API_URL}/scan/hot')
+      const base = market === 'tw' ? `${API_URL}/tw/scan` : `${API_URL}/scan`
+      const r = await axios.get(`${base}/hot`)
       setResults(r.data)
       setScanned(true)
     } catch {}

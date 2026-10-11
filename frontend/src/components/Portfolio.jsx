@@ -2,26 +2,34 @@ import { API_URL } from '../api'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-export default function Portfolio({ onSelect, activeSymbol }) {
+export default function Portfolio({ onSelect, activeSymbol, market = 'us' }) {
+  const storageKey = `portfolio_${market}`
   const [holdings, setHoldings] = useState(
-    () => JSON.parse(localStorage.getItem('portfolio') || '[]')
+    () => JSON.parse(localStorage.getItem(storageKey) || '[]')
   )
   const [input, setInput] = useState({ symbol: '', shares: '', cost: '' })
   const [prices, setPrices] = useState({})
 
   useEffect(() => {
-    localStorage.setItem('portfolio', JSON.stringify(holdings))
+    setHoldings(JSON.parse(localStorage.getItem(`portfolio_${market}`) || '[]'))
+  }, [market])
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(holdings))
+    const base = market === 'tw' ? `${API_URL}/tw/stocks` : `${API_URL}/stocks`
     holdings.forEach(h => {
-      axios.get(`${API_URL}/stocks/${h.symbol}`)
+      axios.get(`${base}/${h.symbol}`)
         .then(r => setPrices(p => ({ ...p, [h.symbol]: r.data.price })))
         .catch(() => {})
     })
-  }, [holdings])
+  }, [holdings, market])
 
   const add = () => {
     if (!input.symbol.trim()) return
+    let sym = input.symbol.trim().toUpperCase()
+    if (market === 'tw') sym = sym.replace(/\.TW$/i, '') + '.TW'
     setHoldings(p => [...p, {
-      symbol: input.symbol.trim().toUpperCase(),
+      symbol: sym,
       shares: parseFloat(input.shares) || 0,
       cost: parseFloat(input.cost) || 0,
     }])
@@ -32,7 +40,9 @@ export default function Portfolio({ onSelect, activeSymbol }) {
 
   return (
     <div style={{ padding: 16 }}>
-      <div style={{ color: '#ff6600', fontWeight: 'bold', marginBottom: 10, fontSize: 12 }}>PORTFOLIO</div>
+      <div style={{ color: '#ff6600', fontWeight: 'bold', marginBottom: 10, fontSize: 12 }}>
+        PORTFOLIO {market === 'tw' ? '🇹🇼' : '🇺🇸'}
+      </div>
       <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
         <input value={input.symbol} onChange={e => setInput(p => ({...p, symbol: e.target.value}))}
           onKeyDown={e => e.key === 'Enter' && add()}

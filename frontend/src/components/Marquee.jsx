@@ -4,28 +4,34 @@ import axios from 'axios'
 
 const SYMBOLS = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN', 'META', 'NVDA', 'NFLX']
 
-export default function Marquee() {
+export default function Marquee({ market = 'us' }) {
   const [stocks, setStocks] = useState([])
 
   useEffect(() => {
     const fetch = async () => {
-      const results = []
-      for (const s of SYMBOLS) {
-        try {
-          const r = await axios.get(`${API_URL}/stocks/${s}`)
-          results.push(r.data)
-        } catch {}
-      }
-      setStocks(results)
+      try {
+        const endpoint = market === 'tw' ? `${API_URL}/tw/marquee` : null
+        if (endpoint) {
+          const r = await axios.get(endpoint)
+          setStocks(r.data)
+        } else {
+          const results = []
+          for (const s of SYMBOLS) {
+            try {
+              const r = await axios.get(`${API_URL}/stocks/${s}`)
+              results.push(r.data)
+            } catch {}
+          }
+          setStocks(results)
+        }
+      } catch {}
     }
     fetch()
-    const id = setInterval(fetch, 60000) // 每分鐘更新
+    const id = setInterval(fetch, 60000)
     return () => clearInterval(id)
-  }, [])
+  }, [market])
 
-  if (!stocks.length) return null
-
-  // 複製兩份讓滾動無縫
+  const currency = market === 'tw' ? 'NT$' : '$'
   const items = [...stocks, ...stocks]
 
   return (
@@ -33,8 +39,8 @@ export default function Marquee() {
       <div className="marquee-track">
         {items.map((s, i) => (
           <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginRight: 40 }}>
-            <span style={{ color: '#ff6600', fontWeight: 'bold', fontSize: 13 }}>{s.symbol}</span>
-            <span style={{ color: '#e0e0e0', fontSize: 13 }}>${s.price?.toFixed(2)}</span>
+            <span style={{ color: '#ff6600', fontWeight: 'bold', fontSize: 13 }}>{s.symbol?.replace('.TW','')}</span>
+            <span style={{ color: '#e0e0e0', fontSize: 13 }}>{currency}{s.price?.toFixed(2)}</span>
             <span style={{ color: s.change >= 0 ? '#00ff88' : '#ff4444', fontSize: 12 }}>
               {s.change >= 0 ? '▲' : '▼'}{Math.abs(s.change_pct)?.toFixed(2)}%
             </span>
